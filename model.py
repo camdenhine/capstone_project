@@ -7,7 +7,7 @@ from torch import zeros, Tensor
 import numpy as np
 
 class LSTM(nn.Module):
-    def __init__(self, input_size = 5, output_size = 7, hidden_layers=64):
+    def __init__(self, input_size = 5, output_size = 7, hidden_layers=128):
         super(LSTM, self).__init__()
         self.hidden_layers = hidden_layers # number of hidden layers
         self.input_size = input_size #number of input features
@@ -305,7 +305,7 @@ class DLinear(nn.Module):
     """
     Decomposition-Linear
     """
-    def __init__(self, kernel_size=25, individual=False, sequence_len=21, pred_len=7, input_size=5, ):
+    def __init__(self, kernel_size=21, individual=False, sequence_len=21, pred_len=7, input_size=5):
         super(DLinear, self).__init__()
         self.sequence_len = sequence_len
         self.pred_len = pred_len
@@ -327,8 +327,8 @@ class DLinear(nn.Module):
                 # self.Linear_Seasonal[i].weight = nn.Parameter((1/self.sequence_len)*torch.ones([self.pred_len,self.sequence_len]))
                 # self.Linear_Trend[i].weight = nn.Parameter((1/self.sequence_len)*torch.ones([self.pred_len,self.sequence_len]))
         else:
-            self.Linear_Seasonal = nn.Linear(self.sequence_len,self.pred_len)
-            self.Linear_Trend = nn.Linear(self.sequence_len,self.pred_len)
+            self.Linear_Seasonal = nn.Linear(self.sequence_len, self.pred_len)
+            self.Linear_Trend = nn.Linear(self.sequence_len, self.pred_len)
             
             # Use this two lines if you want to visualize the weights
             # self.Linear_Seasonal.weight = nn.Parameter((1/self.sequence_len)*torch.ones([self.pred_len,self.sequence_len]))

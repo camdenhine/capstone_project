@@ -4,9 +4,14 @@ from statsmodels.tsa.arima.model import ARIMA
 #from dataset import SequenceDataset
 from torch.utils.data import DataLoader
 from torch import Tensor
-import torch
+from torch import triu
+from torch import ones
+from torch import transpose
+from torch import cat
+from torch import tensor
 import numpy as np
 import pandas as pd
+import datetime
 import matplotlib.pyplot as plt
 import warnings
 from statsmodels.tools.sm_exceptions import ConvergenceWarning
@@ -16,7 +21,7 @@ pd.set_option('mode.chained_assignment', None)
 
 def scale_df(df):
 
-	scaled_df = pd.DataFrame(df.index).set_index('date')
+	scaled_df = pd.DataFrame(df.index).set_index('Date')
 	scalers = []
 	columns = []
 	for i in range(len(df.columns)):
@@ -36,10 +41,11 @@ def apply_scalers(df, scalers):
 	return new_df
 
 def preprocess_data(df):
-	if 'date' in list(df.columns):
-		df.set_index('date', inplace=True)
-	df = df.reindex(columns=['Open', 'Close', 'High', 'Low', 'Volume'])
-
+	if 'Date' in list(df.columns):
+		df.set_index('Date', inplace=True)
+		#df.index = df.index.date
+	if 'Adj Close' in list(df.columns):
+		df.drop('Adj Close', axis=1, inplace=True)
 	return df
 
 def get_p_value(train_series):
@@ -51,15 +57,15 @@ def get_p_value(train_series):
 
 #predictions should be a pytorch tensor, in the form that comes from the predict() function
 def plot_test(df, predictions):
-	preds = torch.transpose(predictions, 0, 1)
-	df_2 = df.copy()
+	preds = transpose(predictions, 0, 1)
+	df_2 = df.copy().iloc[21:]
 	Y_plot = ['Close']
 	for i in range(7):
 		new_pred = preds[i]
 		if i != 0:
 			new_pred = new_pred[:-i]
 			for k in range(i):
-				new_pred = torch.cat((torch.tensor([new_pred[0]]), new_pred))
+				new_pred = cat((tensor([new_pred[0]]), new_pred))
 		df_2["day " + str(i+1) + " prediction"] = new_pred.numpy()
 		Y_plot.append("day " + str(i+1) + " prediction")
 
@@ -87,7 +93,7 @@ def generate_square_subsequent_mask(dim1: int, dim2: int) -> Tensor:
 
         A Tensor of shape [dim1, dim2]
     """
-    return torch.triu(torch.ones(dim1, dim2) * float('-inf'), diagonal=1)
+    return triu(ones(dim1, dim2) * float('-inf'), diagonal=1)
 
 #must take series of target column
 def get_residuals(series, use_p_value=True):

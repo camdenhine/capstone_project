@@ -89,11 +89,13 @@ def train(n_epochs, model, optimiser, loss_fn, train_loader, model_type=0):
             #optimiser.step(closure) #(use this with closure() if using LBFGS optimiser)
             optimiser.step()
             total_loss += loss.item()
+            #uncomment this to see avg loss as batches go in
+            '''
             current_train_avg = total_loss / (i+1)
-
             if i % 20 == 0:
                 print("batch #: %d, current average train loss: %1.5f" % (i, current_train_avg))
             i += 1
+            '''
         avg_loss = total_loss / num_batches
         print("Epoch: %d, train loss: %1.5f" % (epoch, avg_loss))
 
@@ -118,7 +120,7 @@ def test(model, loss_fn, test_loader, model_type=0):
             outputs = torch.cat((outputs, y_star), 0)
     avg_loss = total_loss / num_batches
     print("test loss: %1.5f" %(avg_loss))
-    return outputs
+    return outputs, avg_loss
 
 def predict(model, data_loader, model_type=0):
 
